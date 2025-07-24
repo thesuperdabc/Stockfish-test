@@ -1,0 +1,36 @@
+name: Test All Stockfish Binaries
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  test-all-stockfish:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        binary:
+          - stockfish-ubuntu-x86-64-avx512
+          - stockfish-ubuntu-x86-64-bmi2
+          - stockfish-ubuntu-x86-64-sse41-popcnt
+          - stockfish-ubuntu-x86-64-vnni256
+          - stockfish-ubuntu-x86-64-vnni512
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Make Stockfish binary executable
+        run: chmod +x ./${{ matrix.binary }}
+
+      - name: Run Stockfish bench test
+        run: |
+          ./${{ matrix.binary }} bench 2>&1 | tee output.txt
+          if grep -q "Nodes searched" output.txt; then
+            echo "${{ matrix.binary }} works!"
+          else
+            echo "${{ matrix.binary }} failed to run."
+            exit 1
+          fi
