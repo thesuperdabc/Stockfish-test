@@ -2,8 +2,6 @@ name: Test All Stockfish Binaries
 
 on:
   push:
-    branches:
-      - main
   pull_request:
 
 jobs:
